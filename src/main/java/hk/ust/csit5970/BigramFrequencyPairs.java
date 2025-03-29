@@ -2,6 +2,7 @@ package hk.ust.csit5970;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
@@ -62,15 +63,17 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 					if (w.length() == 0) {
 						continue;
 					}
-					// Emit bigram count
-					BIGRAM.set(previous_word, w);
-					context.write(BIGRAM, ONE);
 					// Emit word count
 					BIGRAM.set(previous_word, "");
 		            context.write(BIGRAM, ONE);
+					
+					// Emit bigram count
+					BIGRAM.set(previous_word, w);
+					context.write(BIGRAM, ONE);
+					
 					previous_word = w;
 				}
-				// Emit the final word count for words[words.length]
+				// Emit the final word count for words[words.length - 1]
 				BIGRAM.set(previous_word, "");
 				context.write(BIGRAM, ONE);
 			}
@@ -85,6 +88,7 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 
 		// Reuse objects.
 		private final static FloatWritable VALUE = new FloatWritable();
+		private HashMap<String, IntWritable> marginalCountsMap = new HashMap<String, IntWritable>();
 
 		@Override
 		public void reduce(PairOfStrings key, Iterable<IntWritable> values,
@@ -99,13 +103,15 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 		    
 		    // If the right element of the key is empty, it's a word count
 		    if (key.getRightElement().isEmpty()) {
-		        // Emit the total count for the preceding word
-		        context.getCounter("WordCounts", key.getLeftElement()).increment(sum);
+		    	IntWritable marginalCountOfKey = marginalCountsMap.getOrDefault(key.getLeftElement(), new IntWritable(0));
+		    	marginalCountOfKey.set(marginalCountOfKey.get() + sum);
+		    	marginalCountsMap.put(key.getLeftElement(), marginalCountOfKey);
 		    } else {
 		        // Otherwise, calculate the relative frequency
 		        String precedingWord = key.getLeftElement();
-		        long precedingCount = context.getCounter("WordCounts", precedingWord).getValue();
-		        float relativeFrequency = (float) sum / precedingCount;
+		        IntWritable marginalCountOfKey = marginalCountsMap.get(precedingWord);
+		        int countValue = (marginalCountOfKey != null) ? marginalCountOfKey.get() : 1; 
+		        float relativeFrequency = (float) sum / countValue;
 		        VALUE.set(relativeFrequency);
 		        context.write(key, VALUE);
 		    }
