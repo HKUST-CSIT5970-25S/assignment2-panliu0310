@@ -2,6 +2,7 @@ package hk.ust.csit5970;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -35,7 +36,7 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(BigramFrequencyPairs.class);
 
 	/*
-	 * TODO: write your Mapper here.
+	 * write your Mapper here.
 	 */
 	private static class MyMapper extends
 			Mapper<LongWritable, Text, PairOfStrings, IntWritable> {
@@ -51,13 +52,33 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 			String[] words = line.trim().split("\\s+");
 			
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			if (words.length > 1){
+				String previous_word = words[0];
+				for (int i = 1; i < words.length; i++) {
+					String w = words[i];
+					// Skip empty words
+					if (w.length() == 0) {
+						continue;
+					}
+					// Emit bigram count
+					BIGRAM.set(previous_word, w);
+					context.write(BIGRAM, ONE);
+					// Emit word count
+					BIGRAM.set(previous_word, "");
+		            context.write(BIGRAM, ONE);
+					previous_word = w;
+				}
+				// Emit the final word count for words[words.length]
+				BIGRAM.set(previous_word, "");
+				context.write(BIGRAM, ONE);
+			}
 		}
 	}
 
 	/*
-	 * TODO: Write your reducer here.
+	 * Write your reducer here.
 	 */
 	private static class MyReducer extends
 			Reducer<PairOfStrings, IntWritable, PairOfStrings, FloatWritable> {
@@ -69,8 +90,25 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 		public void reduce(PairOfStrings key, Iterable<IntWritable> values,
 				Context context) throws IOException, InterruptedException {
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			int sum = 0;
+		    for (IntWritable value : values) {
+		        sum += value.get();
+		    }
+		    
+		    // If the right element of the key is empty, it's a word count
+		    if (key.getRightElement().isEmpty()) {
+		        // Emit the total count for the preceding word
+		        context.getCounter("WordCounts", key.getLeftElement()).increment(sum);
+		    } else {
+		        // Otherwise, calculate the relative frequency
+		        String precedingWord = key.getLeftElement();
+		        long precedingCount = context.getCounter("WordCounts", precedingWord).getValue();
+		        float relativeFrequency = (float) sum / precedingCount;
+		        VALUE.set(relativeFrequency);
+		        context.write(key, VALUE);
+		    }
 		}
 	}
 	
@@ -82,8 +120,15 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 		public void reduce(PairOfStrings key, Iterable<IntWritable> values,
 				Context context) throws IOException, InterruptedException {
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			Iterator<IntWritable> iter = values.iterator();
+			int sum = 0;
+			while (iter.hasNext()) {
+				sum += iter.next().get();
+			}
+			SUM.set(sum);
+			context.write(key, SUM);
 		}
 	}
 
