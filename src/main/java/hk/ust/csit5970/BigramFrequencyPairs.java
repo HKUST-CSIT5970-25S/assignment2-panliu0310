@@ -103,8 +103,11 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 		    
 		    // If the right element of the key is empty, it's a word count
 		    if (key.getRightElement().isEmpty()) {
-		    	IntWritable marginalCountOfKey = marginalCountsMap.getOrDefault(key.getLeftElement(), new IntWritable(0));
-		    	marginalCountOfKey.set(marginalCountOfKey.get() + sum);
+		    	IntWritable marginalCountOfKey = marginalCountsMap.get(key.getLeftElement());
+		        if (marginalCountOfKey == null) {
+		        	marginalCountOfKey = new IntWritable(0);
+		        }
+		        marginalCountOfKey.set(marginalCountOfKey.get() + sum);
 		    	marginalCountsMap.put(key.getLeftElement(), marginalCountOfKey);
 		    } else {
 		        // Otherwise, calculate the relative frequency
