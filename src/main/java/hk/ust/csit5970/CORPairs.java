@@ -105,6 +105,8 @@ public class CORPairs extends Configured implements Tool {
 			}
 			String line = lineBuilder.toString();
 			String[] words = line.trim().split("\\s+");
+			// Please be noted that each occurrence of a word pair (A, B) & (B, A) will be only counted for once
+			ArrayList<PairOfStrings> counted = new ArrayList<PairOfStrings>();
 			for (int id1 = 0; id1 < words.length; id1++)
 			{
 				for (int id2 = id1 + 1; id2 < words.length; id2++)
@@ -117,7 +119,37 @@ public class CORPairs extends Configured implements Tool {
 					{
 						word_pair.set(words[id2], words[id1]);
 					}
-					context.write(word_pair, ONE);
+					Boolean contextWritten = false;
+					System.out.print("word_pair: ");
+					System.out.print(word_pair.getLeftElement() + " ");
+					System.out.println(word_pair.getRightElement() + " ");
+					System.out.println("for loop start ******************* for every c in counted");
+					for (PairOfStrings c : counted)
+					{
+						if (c.getLeftElement().equals(word_pair.getLeftElement()) 
+								&& c.getRightElement().equals(word_pair.getRightElement()))
+						{
+							System.out.print("c.getLeftElement: ");
+							System.out.println(c.getLeftElement() + " ");
+							System.out.print("word_pair.getLeftElement: ");
+							System.out.println(word_pair.getLeftElement() + " ");
+							System.out.print("c.getRightElement: ");
+							System.out.println(c.getRightElement() + " ");
+							System.out.print("word_pair.getRightElement: ");
+							System.out.println(word_pair.getRightElement() + " ");
+							System.out.print("c.getLeftElement().equals(word_pair.getLeftElement()): ");
+							System.out.println(c.getLeftElement().equals(word_pair.getLeftElement()));
+							System.out.print("c.getRightElement().equals(word_pair.getRightElement()): ");
+							System.out.println(c.getRightElement().equals(word_pair.getRightElement()));
+							contextWritten = true;
+							break;
+						}
+					}
+					if (!contextWritten)
+					{
+						context.write(word_pair, ONE);
+						counted.add(word_pair);
+					}
 				}
 			}
 	        
