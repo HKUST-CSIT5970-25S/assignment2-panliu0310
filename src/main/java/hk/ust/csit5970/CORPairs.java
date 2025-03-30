@@ -98,7 +98,6 @@ public class CORPairs extends Configured implements Tool {
 			/*
 			 * Your implementation goes here.
 			 */
-			PairOfStrings word_pair = new PairOfStrings();
 			StringBuilder lineBuilder = new StringBuilder();
 			while (doc_tokenizer.hasMoreTokens()) {
 				lineBuilder.append(doc_tokenizer.nextToken() + " ");
@@ -111,6 +110,7 @@ public class CORPairs extends Configured implements Tool {
 			{
 				for (int id2 = id1 + 1; id2 < words.length; id2++)
 				{
+					PairOfStrings word_pair = new PairOfStrings();
 					if (words[id1].compareTo(words[id2]) < 0)
 					{
 						word_pair.set(words[id1], words[id2]);
@@ -120,27 +120,11 @@ public class CORPairs extends Configured implements Tool {
 						word_pair.set(words[id2], words[id1]);
 					}
 					Boolean contextWritten = false;
-					System.out.print("word_pair: ");
-					System.out.print(word_pair.getLeftElement() + " ");
-					System.out.println(word_pair.getRightElement() + " ");
-					System.out.println("for loop start ******************* for every c in counted");
 					for (PairOfStrings c : counted)
 					{
 						if (c.getLeftElement().equals(word_pair.getLeftElement()) 
 								&& c.getRightElement().equals(word_pair.getRightElement()))
 						{
-							System.out.print("c.getLeftElement: ");
-							System.out.println(c.getLeftElement() + " ");
-							System.out.print("word_pair.getLeftElement: ");
-							System.out.println(word_pair.getLeftElement() + " ");
-							System.out.print("c.getRightElement: ");
-							System.out.println(c.getRightElement() + " ");
-							System.out.print("word_pair.getRightElement: ");
-							System.out.println(word_pair.getRightElement() + " ");
-							System.out.print("c.getLeftElement().equals(word_pair.getLeftElement()): ");
-							System.out.println(c.getLeftElement().equals(word_pair.getLeftElement()));
-							System.out.print("c.getRightElement().equals(word_pair.getRightElement()): ");
-							System.out.println(c.getRightElement().equals(word_pair.getRightElement()));
 							contextWritten = true;
 							break;
 						}
