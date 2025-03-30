@@ -109,7 +109,14 @@ public class CORPairs extends Configured implements Tool {
 			{
 				for (int id2 = id1 + 1; id2 < words.length; id2++)
 				{
-					word_pair.set(words[id1], words[id2]);
+					if (words[id1].compareTo(words[id2]) < 0)
+					{
+						word_pair.set(words[id1], words[id2]);
+					}
+					else
+					{
+						word_pair.set(words[id2], words[id1]);
+					}
 					context.write(word_pair, ONE);
 				}
 			}
