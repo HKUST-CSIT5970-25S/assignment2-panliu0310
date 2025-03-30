@@ -73,9 +73,6 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 					
 					previous_word = w;
 				}
-				// Emit the final word count for words[words.length - 1]
-				BIGRAM.set(previous_word, "");
-				context.write(BIGRAM, ONE);
 			}
 		}
 	}
@@ -109,6 +106,8 @@ public class BigramFrequencyPairs extends Configured implements Tool {
 		        }
 		        marginalCountOfKey.set(marginalCountOfKey.get() + sum);
 		    	marginalCountsMap.put(key.getLeftElement(), marginalCountOfKey);
+		    	VALUE.set(marginalCountOfKey.get());
+		        context.write(key, VALUE);
 		    } else {
 		        // Otherwise, calculate the relative frequency
 		        String precedingWord = key.getLeftElement();
