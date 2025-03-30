@@ -114,7 +114,7 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 	            String second_w = (String) mapElement.getKey(); 
 	            int value = (int) mapElement.getValue();
 	            BIGRAM.set(first_w, second_w);
-	            FREQ.set(value);
+	            FREQ.set((float)value / first_w_sum);
 	            context.write(BIGRAM, FREQ);
 	        }
 	        
