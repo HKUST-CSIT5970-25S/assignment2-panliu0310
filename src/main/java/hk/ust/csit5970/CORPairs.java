@@ -99,18 +99,21 @@ public class CORPairs extends Configured implements Tool {
 			 * Your implementation goes here.
 			 */
 			PairOfStrings word_pair = new PairOfStrings();
+			StringBuilder lineBuilder = new StringBuilder();
 			while (doc_tokenizer.hasMoreTokens()) {
-				String line = doc_tokenizer.nextToken();
-				String[] words = line.trim().split("\\s+");
-				for (int id1 = 0; id1 < words.length; id1++)
+				lineBuilder.append(doc_tokenizer.nextToken() + " ");
+			}
+			String line = lineBuilder.toString();
+			String[] words = line.trim().split("\\s+");
+			for (int id1 = 0; id1 < words.length; id1++)
+			{
+				for (int id2 = id1 + 1; id2 < words.length; id2++)
 				{
-					for (int id2 = id1 + 1; id2 < words.length; id2++)
-					{
-						word_pair.set(words[id1], words[id2]);
-						context.write(word_pair, ONE);
-					}
+					word_pair.set(words[id1], words[id2]);
+					context.write(word_pair, ONE);
 				}
-	        }
+			}
+	        
 		}
 	}
 
