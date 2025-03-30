@@ -190,20 +190,13 @@ public class CORPairs extends Configured implements Tool {
 		        sum += value.get();
 		    }
 		    
-		    PairOfStrings word_pair = new PairOfStrings();
 		    DoubleWritable leftFreq = new DoubleWritable();
 		    DoubleWritable rightFreq = new DoubleWritable();
 		    DoubleWritable COR = new DoubleWritable();
 		    
-		    word_pair.set(key.getLeftElement(), "");
 		    leftFreq.set(word_total_map.get(key.getLeftElement()));
-		    context.write(key, leftFreq);
-		    
-		    word_pair.set(key.getRightElement(), "");
 		    rightFreq.set(word_total_map.get(key.getRightElement()));
-		    context.write(key, rightFreq);
 		    
-		    word_pair = key;
 		    COR.set((double)sum / (leftFreq.get() * rightFreq.get()));
 		    context.write(key, COR);
 		}
