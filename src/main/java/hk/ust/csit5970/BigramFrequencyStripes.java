@@ -2,7 +2,9 @@ package hk.ust.csit5970;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -52,13 +54,27 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 			String[] words = line.trim().split("\\s+");
 
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			if (words.length > 1){
+				KEY.set( words[0]);
+				for (int i = 1; i < words.length; i++) {
+					String w = words[i];
+					// Skip empty words
+					if (w.length() == 0) {
+						continue;
+					}
+					STRIPE.increment(w);
+					context.write(KEY, STRIPE);
+					KEY.set(w);
+					STRIPE.clear();
+				}
+			}
 		}
 	}
 
 	/*
-	 * TODO: write your reducer to aggregate all stripes associated with each key
+	 * write your reducer to aggregate all stripes associated with each key
 	 */
 	private static class MyReducer extends
 			Reducer<Text, HashMapStringIntWritable, PairOfStrings, FloatWritable> {
@@ -73,13 +89,41 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 				Iterable<HashMapStringIntWritable> stripes, Context context)
 				throws IOException, InterruptedException {
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			Iterator<HashMapStringIntWritable> iter = stripes.iterator();
+			String first_w = key.toString();
+			while (iter.hasNext()) {
+				SUM_STRIPES.plus(iter.next());
+			}
+			
+			// compute the sum first, which is used later to calculate bigram frequency
+			int first_w_sum = 0;
+			
+			for (Entry<String, Integer> mapElement : SUM_STRIPES.entrySet()) {
+	            int value = (int) mapElement.getValue();
+	            first_w_sum += value;
+	        }
+			
+			BIGRAM.set(first_w, "");
+            FREQ.set(first_w_sum);
+            context.write(BIGRAM, FREQ);
+			
+            // compute bigram frequency
+	        for (Entry<String, Integer> mapElement : SUM_STRIPES.entrySet()) { 
+	            String second_w = (String) mapElement.getKey(); 
+	            int value = (int) mapElement.getValue();
+	            BIGRAM.set(first_w, second_w);
+	            FREQ.set(value);
+	            context.write(BIGRAM, FREQ);
+	        }
+	        
+	        SUM_STRIPES.clear();
 		}
 	}
 
 	/*
-	 * TODO: Write your combiner to aggregate all stripes with the same key
+	 * Write your combiner to aggregate all stripes with the same key
 	 */
 	private static class MyCombiner
 			extends
@@ -92,8 +136,17 @@ public class BigramFrequencyStripes extends Configured implements Tool {
 				Iterable<HashMapStringIntWritable> stripes, Context context)
 				throws IOException, InterruptedException {
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			Iterator<HashMapStringIntWritable> iter = stripes.iterator();
+
+			while (iter.hasNext()) {
+				for ( String second_w : iter.next().keySet() ) {
+					SUM_STRIPES.increment(second_w);
+				}
+			}
+			context.write(key, SUM_STRIPES);
+			SUM_STRIPES.clear();
 		}
 	}
 
