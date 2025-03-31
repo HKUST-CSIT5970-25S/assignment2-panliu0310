@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Compute the bigram count using "pairs" approach
@@ -29,10 +30,12 @@ public class CORStripes extends Configured implements Tool {
 	private static final Logger LOG = Logger.getLogger(CORStripes.class);
 
 	/*
-	 * TODO: write your first-pass Mapper here.
+	 * write your first-pass Mapper here.
 	 */
 	private static class CORMapper1 extends
 			Mapper<LongWritable, Text, Text, IntWritable> {
+		private final static Text WORD = new Text();
+		private static final IntWritable ONE = new IntWritable(1);
 		@Override
 		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
@@ -43,26 +46,45 @@ public class CORStripes extends Configured implements Tool {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
+			while (doc_tokenizer.hasMoreTokens()) {
+				String w = doc_tokenizer.nextToken();
+				if (w.length() == 0) {
+					continue;
+				}
+				WORD.set(w);
+				context.write(WORD, ONE);
+	        }
 		}
 	}
 
 	/*
-	 * TODO: Write your first-pass reducer here.
+	 * Write your first-pass reducer here.
 	 */
 	private static class CORReducer1 extends
 			Reducer<Text, IntWritable, Text, IntWritable> {
+		private final static IntWritable SUM = new IntWritable();
 		@Override
 		public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			Iterator<IntWritable> iter = values.iterator();
+			int sum = 0;
+			while (iter.hasNext()) {
+				sum += iter.next().get();
+			}
+			SUM.set(sum);
+			context.write(key, SUM);
 		}
 	}
 
 	/*
-	 * TODO: Write your second-pass Mapper here.
+	 * Write your second-pass Mapper here.
 	 */
 	public static class CORStripesMapper2 extends Mapper<LongWritable, Text, Text, MapWritable> {
+		private static final Text KEY = new Text();
+		private static final MapWritable STRIPE = new MapWritable();
+		private static final IntWritable ONE = new IntWritable(1);
 		@Override
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			Set<String> sorted_word_set = new TreeSet<String>();
@@ -73,8 +95,20 @@ public class CORStripes extends Configured implements Tool {
 				sorted_word_set.add(doc_tokenizers.nextToken());
 			}
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			Object[] sorted_word_set_array = sorted_word_set.toArray();
+			for (int id1 = 0; id1 < sorted_word_set.size(); id1++)
+			{
+				KEY.set(sorted_word_set_array[id1].toString());
+				for (int id2 = id1 + 1; id2 < sorted_word_set.size(); id2++)
+				{
+					STRIPE.put((Writable) sorted_word_set_array[id2], ONE);
+					context.write(KEY, STRIPE);
+					KEY.set(sorted_word_set_array[id2].toString());
+					STRIPE.clear();
+				}
+			}
 		}
 	}
 
@@ -83,12 +117,25 @@ public class CORStripes extends Configured implements Tool {
 	 */
 	public static class CORStripesCombiner2 extends Reducer<Text, MapWritable, Text, MapWritable> {
 		static IntWritable ZERO = new IntWritable(0);
+		private static final IntWritable ONE = new IntWritable(1);
+		private final static MapWritable SUM_STRIPES = new MapWritable();
 
 		@Override
 		protected void reduce(Text key, Iterable<MapWritable> values, Context context) throws IOException, InterruptedException {
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			Iterator<MapWritable> iter = values.iterator();
+
+			while (iter.hasNext()) {
+				for ( Writable second_w : iter.next().keySet() ) {
+					IntWritable value_of_key_second_w = (IntWritable) (SUM_STRIPES.get(key));
+					value_of_key_second_w.set(((IntWritable)SUM_STRIPES.get(key)).get() + 1);
+					SUM_STRIPES.put(second_w, value_of_key_second_w);
+				}
+			}
+			context.write(key, SUM_STRIPES);
+			SUM_STRIPES.clear();
 		}
 	}
 
@@ -98,6 +145,7 @@ public class CORStripes extends Configured implements Tool {
 	public static class CORStripesReducer2 extends Reducer<Text, MapWritable, PairOfStrings, DoubleWritable> {
 		private static Map<String, Integer> word_total_map = new HashMap<String, Integer>();
 		private static IntWritable ZERO = new IntWritable(0);
+		private final static MapWritable SUM_STRIPES = new MapWritable();
 
 		/*
 		 * Preload the middle result file.
@@ -135,13 +183,37 @@ public class CORStripes extends Configured implements Tool {
 		}
 
 		/*
-		 * TODO: Write your second-pass Reducer here.
+		 * Write your second-pass Reducer here.
 		 */
 		@Override
 		protected void reduce(Text key, Iterable<MapWritable> values, Context context) throws IOException, InterruptedException {
 			/*
-			 * TODO: Your implementation goes here.
+			 * Your implementation goes here.
 			 */
+			Iterator<MapWritable> iter = values.iterator();
+			String first_w = key.toString();
+			while (iter.hasNext()) {
+				for ( Writable second_w : iter.next().keySet() ) {
+					IntWritable value_of_key_second_w = (IntWritable) (SUM_STRIPES.get(key));
+					value_of_key_second_w.set(((IntWritable)SUM_STRIPES.get(key)).get() + value_of_key_second_w.get());
+					SUM_STRIPES.put(second_w, value_of_key_second_w);
+				}
+			}
+		    
+		    DoubleWritable first_w_freq = new DoubleWritable();
+		    DoubleWritable second_w_freq = new DoubleWritable();
+		    DoubleWritable COR = new DoubleWritable();
+		    
+		    for (Entry<Writable, Writable> mapElement : SUM_STRIPES.entrySet()) { 
+	            String second_w = ((Text) (mapElement.getKey())).toString(); 
+	            int value = ((IntWritable) mapElement.getValue()).get();
+	            first_w_freq.set(word_total_map.get(first_w));
+	            second_w_freq.set(word_total_map.get(second_w));
+	            COR.set((double)value / (first_w_freq.get() * second_w_freq.get()));
+	            context.write(new PairOfStrings(first_w, second_w), COR);
+	        }
+		    
+		    SUM_STRIPES.clear();
 		}
 	}
 
