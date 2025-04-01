@@ -101,18 +101,34 @@ public class CORStripes extends Configured implements Tool {
 			
 			System.out.println("Mapper2 start*******************");
 			
-			
+			ArrayList<PairOfStrings> counted = new ArrayList<PairOfStrings>();
 			for (int id1 = 0; id1 < sorted_word_set.size(); id1++)
 			{
 				KEY.set(sorted_word_set_array[id1].toString());
 				for (int id2 = id1 + 1; id2 < sorted_word_set.size(); id2++)
 				{
-					STRIPE.put(new Text(sorted_word_set_array[id2].toString()), ONE);
-					context.write(KEY, STRIPE);
-					//KEY.set(sorted_word_set_array[id2].toString());
-					System.out.println("KEY: " + sorted_word_set_array[id1]);
-					System.out.println("KEY2: " + sorted_word_set_array[id2]);
-					STRIPE.clear();
+					PairOfStrings word_pair = new PairOfStrings();
+					Boolean contextWritten = false;
+					for (PairOfStrings c : counted)
+					{
+						if (c.getLeftElement().equals(word_pair.getLeftElement()) 
+								&& c.getRightElement().equals(word_pair.getRightElement()))
+						{
+							contextWritten = true;
+							break;
+						}
+					}
+					if (!contextWritten)
+					{
+						STRIPE.put(new Text(sorted_word_set_array[id2].toString()), ONE);
+						context.write(KEY, STRIPE);
+						//KEY.set(sorted_word_set_array[id2].toString());
+						System.out.println("KEY: " + sorted_word_set_array[id1]);
+						System.out.println("KEY2: " + sorted_word_set_array[id2]);
+						STRIPE.clear();
+						
+						counted.add(word_pair);
+					}
 				}
 			}
 		}
@@ -261,10 +277,6 @@ public class CORStripes extends Configured implements Tool {
 		    DoubleWritable first_w_freq = new DoubleWritable();
 		    DoubleWritable second_w_freq = new DoubleWritable();
 		    DoubleWritable COR = new DoubleWritable();
-		    
-		    for (Entry<Writable, Writable> mapElement : SUM_STRIPES.entrySet()) { 
-		    	
-		    }
 		    
 		    for (Entry<Writable, Writable> mapElement : SUM_STRIPES.entrySet()) { 
 	            String second_w = ((Text) (mapElement.getKey())).toString();
