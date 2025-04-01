@@ -143,9 +143,10 @@ public class CORStripes extends Configured implements Tool {
 						System.out.println("SUM_STRIPES.containsKey(second_w)");
 						System.out.print("first_w: " + key.toString() + " ");
 						System.out.println("second_w: " + ((Text)second_w).toString());
-						value_of_key_second_w = (IntWritable) (SUM_STRIPES.get(second_w));
+						value_of_key_second_w.set(((IntWritable) (SUM_STRIPES.get(second_w))).get());
 						value_of_key_second_w.set(value_of_key_second_w.get() + 1);
 						SUM_STRIPES.put(second_w, value_of_key_second_w);
+						System.out.println("value: " + value_of_key_second_w.get());
 						context.write(key, SUM_STRIPES);
 						
 					}
@@ -155,6 +156,7 @@ public class CORStripes extends Configured implements Tool {
 						System.out.print("first_w: " + key.toString() + " ");
 						System.out.println("second_w: " + ((Text)second_w).toString());
 						SUM_STRIPES.put(second_w, ONE);
+						System.out.println("value: ONE");
 						context.write(key, SUM_STRIPES);
 					}
 				}
