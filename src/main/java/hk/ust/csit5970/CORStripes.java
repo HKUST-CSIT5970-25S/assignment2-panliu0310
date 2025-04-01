@@ -220,38 +220,13 @@ public class CORStripes extends Configured implements Tool {
 			 */
 			Iterator<MapWritable> iter = values.iterator();
 			String first_w = key.toString();
+			int sum = 0;
 			System.out.println("Reduce2 start**************************");
 			while (iter.hasNext()) {
 				MapWritable map_second_w = iter.next();
 				for (Writable second_w : map_second_w.keySet())
 				{
-					IntWritable value_of_second_w = new IntWritable();
-					IntWritable value_of_second_w_in_SUM_STRIPES = new IntWritable();
-					IntWritable value_of_second_w_in_values = new IntWritable();
-					System.out.println("for loop second_w*******");
-					if (SUM_STRIPES.containsKey(second_w))
-					{
-						value_of_second_w_in_SUM_STRIPES = (IntWritable) (SUM_STRIPES.get(second_w));
-						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
-						value_of_second_w.set(value_of_second_w_in_SUM_STRIPES.get() + value_of_second_w_in_values.get());
-						System.out.println("SUM_STRIPES.containsKey(second_w)");
-						System.out.println("first_w: " + first_w + " " + "second_w " + ((Text)second_w).toString());
-						System.out.print("SUM_STRIPES: ");
-						System.out.print(value_of_second_w_in_SUM_STRIPES.get());
-						System.out.print(" values: ");
-						System.out.println(value_of_second_w_in_values.get());
-					}
-					else
-					{
-						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
-						value_of_second_w.set(value_of_second_w_in_values.get());
-						System.out.println("!SUM_STRIPES.containsKey(second_w)");
-						System.out.println("first_w: " + first_w + " " + "second_w " + ((Text)second_w).toString());
-						System.out.print("values: ");
-						System.out.println(value_of_second_w_in_values.get());
-					}
-					
-					SUM_STRIPES.put(second_w, value_of_second_w);
+					sum += ((IntWritable) map_second_w.get(second_w)).get();
 				}
 			}
 			
@@ -262,11 +237,10 @@ public class CORStripes extends Configured implements Tool {
 		    DoubleWritable COR = new DoubleWritable();
 		    
 		    for (Entry<Writable, Writable> mapElement : SUM_STRIPES.entrySet()) { 
-	            String second_w = ((Text) (mapElement.getKey())).toString(); 
-	            int value = ((IntWritable) mapElement.getValue()).get();
+	            String second_w = ((Text) (mapElement.getKey())).toString();
 	            first_w_freq.set(word_total_map.get(first_w));
 	            second_w_freq.set(word_total_map.get(second_w));
-	            COR.set((double)value / (first_w_freq.get() * second_w_freq.get()));
+	            COR.set((double)sum / (first_w_freq.get() * second_w_freq.get()));
 	            context.write(new PairOfStrings(first_w, second_w), COR);
 	        }
 		    
