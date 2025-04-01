@@ -134,18 +134,26 @@ public class CORStripes extends Configured implements Tool {
 					IntWritable value_of_key_second_w = new IntWritable();
 					if (SUM_STRIPES.containsKey(key))
 					{
+						System.out.println("SUM_STRIPES.containsKey(second_w)");
+						System.out.print("first_w: " + key.toString() + " ");
+						System.out.println("second_w: " + ((Text)second_w).toString());
 						value_of_key_second_w = (IntWritable) (SUM_STRIPES.get(key));
 						value_of_key_second_w.set(value_of_key_second_w.get() + 1);
 						SUM_STRIPES.put(second_w, value_of_key_second_w);
 						context.write(key, SUM_STRIPES);
+						
 					}
 					else
 					{
+						System.out.println("!SUM_STRIPES.containsKey(second_w)");
+						System.out.print("first_w: " + key.toString() + " ");
+						System.out.println("second_w: " + ((Text)second_w).toString());
 						SUM_STRIPES.put(second_w, ONE);
 						context.write(key, SUM_STRIPES);
 					}
 				}
 			}
+			System.out.println("Combine2 iter done*******************");
 			
 			SUM_STRIPES.clear();
 		}
@@ -215,24 +223,24 @@ public class CORStripes extends Configured implements Tool {
 					System.out.println("for loop second_w*******");
 					if (SUM_STRIPES.containsKey(second_w))
 					{
+						value_of_second_w_in_SUM_STRIPES = (IntWritable) (SUM_STRIPES.get(second_w));
+						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
+						value_of_second_w.set(value_of_second_w_in_SUM_STRIPES.get() + value_of_second_w_in_values.get());
 						System.out.println("SUM_STRIPES.containsKey(second_w)");
 						System.out.println("first_w: " + first_w + " " + "second_w " + ((Text)second_w).toString());
 						System.out.print("SUM_STRIPES: ");
 						System.out.print(value_of_second_w_in_SUM_STRIPES.get());
 						System.out.print(" values: ");
 						System.out.println(value_of_second_w_in_values.get());
-						value_of_second_w_in_SUM_STRIPES = (IntWritable) (SUM_STRIPES.get(second_w));
-						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
-						value_of_second_w.set(value_of_second_w_in_SUM_STRIPES.get() + value_of_second_w_in_values.get());
 					}
 					else
 					{
+						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
+						value_of_second_w.set(value_of_second_w_in_values.get());
 						System.out.println("!SUM_STRIPES.containsKey(second_w)");
 						System.out.println("first_w: " + first_w + " " + "second_w " + ((Text)second_w).toString());
 						System.out.print("values: ");
 						System.out.println(value_of_second_w_in_values.get());
-						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
-						value_of_second_w.set(value_of_second_w_in_values.get());
 					}
 					
 					SUM_STRIPES.put(second_w, value_of_second_w);
