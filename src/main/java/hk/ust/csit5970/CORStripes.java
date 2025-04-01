@@ -226,7 +226,33 @@ public class CORStripes extends Configured implements Tool {
 				MapWritable map_second_w = iter.next();
 				for (Writable second_w : map_second_w.keySet())
 				{
-					sum += ((IntWritable) map_second_w.get(second_w)).get();
+					IntWritable value_of_second_w = new IntWritable();
+					IntWritable value_of_second_w_in_SUM_STRIPES = new IntWritable();
+					IntWritable value_of_second_w_in_values = new IntWritable();
+					System.out.println("for loop second_w*******");
+					if (SUM_STRIPES.containsKey(second_w))
+					{
+						value_of_second_w_in_SUM_STRIPES = (IntWritable) (SUM_STRIPES.get(second_w));
+						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
+						value_of_second_w.set(value_of_second_w_in_SUM_STRIPES.get() + value_of_second_w_in_values.get());
+						System.out.println("SUM_STRIPES.containsKey(second_w)");
+						System.out.println("first_w: " + first_w + " " + "second_w " + ((Text)second_w).toString());
+						System.out.print("SUM_STRIPES: ");
+						System.out.print(value_of_second_w_in_SUM_STRIPES.get());
+						System.out.print(" values: ");
+						System.out.println(value_of_second_w_in_values.get());
+					}
+					else
+					{
+						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
+						value_of_second_w.set(value_of_second_w_in_values.get());
+						System.out.println("!SUM_STRIPES.containsKey(second_w)");
+						System.out.println("first_w: " + first_w + " " + "second_w " + ((Text)second_w).toString());
+						System.out.print("values: ");
+						System.out.println(value_of_second_w_in_values.get());
+					}
+					sum += value_of_second_w_in_values.get();
+					SUM_STRIPES.put(second_w, value_of_second_w);
 				}
 			}
 			
@@ -235,6 +261,10 @@ public class CORStripes extends Configured implements Tool {
 		    DoubleWritable first_w_freq = new DoubleWritable();
 		    DoubleWritable second_w_freq = new DoubleWritable();
 		    DoubleWritable COR = new DoubleWritable();
+		    
+		    for (Entry<Writable, Writable> mapElement : SUM_STRIPES.entrySet()) { 
+		    	
+		    }
 		    
 		    for (Entry<Writable, Writable> mapElement : SUM_STRIPES.entrySet()) { 
 	            String second_w = ((Text) (mapElement.getKey())).toString();
