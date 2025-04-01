@@ -201,10 +201,25 @@ public class CORStripes extends Configured implements Tool {
 			Iterator<MapWritable> iter = values.iterator();
 			String first_w = key.toString();
 			while (iter.hasNext()) {
-				for ( Writable second_w : iter.next().keySet() ) {
-					IntWritable value_of_key_second_w = (IntWritable) (SUM_STRIPES.get(key));
-					value_of_key_second_w.set(((IntWritable)SUM_STRIPES.get(key)).get() + value_of_key_second_w.get());
-					SUM_STRIPES.put(second_w, value_of_key_second_w);
+				MapWritable map_second_w = iter.next();
+				for (Writable second_w : map_second_w.keySet())
+				{
+					IntWritable value_of_second_w = new IntWritable();
+					IntWritable value_of_second_w_in_SUM_STRIPES = new IntWritable();
+					IntWritable value_of_second_w_in_values = new IntWritable();
+					if (SUM_STRIPES.containsKey(second_w))
+					{
+						value_of_second_w_in_SUM_STRIPES = (IntWritable) (SUM_STRIPES.get(second_w));
+						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
+						value_of_second_w.set(value_of_second_w_in_SUM_STRIPES.get() + value_of_second_w_in_values.get());
+					}
+					else
+					{
+						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
+						value_of_second_w.set(value_of_second_w_in_values.get());
+					}
+					
+					SUM_STRIPES.put(second_w, value_of_second_w);
 				}
 			}
 		    
