@@ -211,6 +211,7 @@ public class CORStripes extends Configured implements Tool {
 					if (SUM_STRIPES.containsKey(second_w))
 					{
 						System.out.println("SUM_STRIPES.containsKey(second_w)");
+						System.out.println("first_w: " + first_w + " " + "seond_w " + ((Text)second_w).toString());
 						System.out.print("SUM_STRIPES: ");
 						System.out.print(value_of_second_w_in_SUM_STRIPES.get());
 						System.out.print(" values: ");
@@ -222,6 +223,7 @@ public class CORStripes extends Configured implements Tool {
 					else
 					{
 						System.out.println("!SUM_STRIPES.containsKey(second_w)");
+						System.out.println("first_w: " + first_w + " " + "seond_w " + ((Text)second_w).toString());
 						System.out.print("values: ");
 						System.out.println(value_of_second_w_in_values.get());
 						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
