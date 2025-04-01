@@ -98,6 +98,10 @@ public class CORStripes extends Configured implements Tool {
 			 * Your implementation goes here.
 			 */
 			Object[] sorted_word_set_array = sorted_word_set.toArray();
+			
+			System.out.println("Mapper2 start*******************");
+			
+			
 			for (int id1 = 0; id1 < sorted_word_set.size(); id1++)
 			{
 				KEY.set(sorted_word_set_array[id1].toString());
@@ -106,6 +110,8 @@ public class CORStripes extends Configured implements Tool {
 					STRIPE.put(new Text(sorted_word_set_array[id2].toString()), ONE);
 					context.write(KEY, STRIPE);
 					KEY.set(sorted_word_set_array[id2].toString());
+					System.out.println("KEY: " + sorted_word_set_array[id1]);
+					System.out.println("KEY2: " + sorted_word_set_array[id2]);
 					STRIPE.clear();
 				}
 			}
