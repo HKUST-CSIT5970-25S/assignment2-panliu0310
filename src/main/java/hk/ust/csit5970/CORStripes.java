@@ -107,7 +107,7 @@ public class CORStripes extends Configured implements Tool {
 				KEY.set(sorted_word_set_array[id1].toString());
 				for (int id2 = id1 + 1; id2 < sorted_word_set.size(); id2++)
 				{
-					PairOfStrings word_pair = new PairOfStrings();
+					PairOfStrings word_pair = new PairOfStrings(sorted_word_set_array[id1].toString(), sorted_word_set_array[id2].toString());
 					Boolean contextWritten = false;
 					for (PairOfStrings c : counted)
 					{
