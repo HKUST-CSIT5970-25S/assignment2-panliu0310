@@ -126,6 +126,8 @@ public class CORStripes extends Configured implements Tool {
 			 * Your implementation goes here.
 			 */
 			Iterator<MapWritable> iter = values.iterator();
+			
+			System.out.println("Combine2 start*******************");
 
 			while (iter.hasNext()) {
 				for ( Writable second_w : iter.next().keySet() ) {
@@ -135,14 +137,16 @@ public class CORStripes extends Configured implements Tool {
 						value_of_key_second_w = (IntWritable) (SUM_STRIPES.get(key));
 						value_of_key_second_w.set(value_of_key_second_w.get() + 1);
 						SUM_STRIPES.put(second_w, value_of_key_second_w);
+						context.write(key, SUM_STRIPES);
 					}
 					else
 					{
 						SUM_STRIPES.put(second_w, ONE);
+						context.write(key, SUM_STRIPES);
 					}
 				}
 			}
-			context.write(key, SUM_STRIPES);
+			
 			SUM_STRIPES.clear();
 		}
 	}
@@ -200,6 +204,7 @@ public class CORStripes extends Configured implements Tool {
 			 */
 			Iterator<MapWritable> iter = values.iterator();
 			String first_w = key.toString();
+			System.out.println("Reduce2 start**************************");
 			while (iter.hasNext()) {
 				MapWritable map_second_w = iter.next();
 				for (Writable second_w : map_second_w.keySet())
@@ -211,7 +216,7 @@ public class CORStripes extends Configured implements Tool {
 					if (SUM_STRIPES.containsKey(second_w))
 					{
 						System.out.println("SUM_STRIPES.containsKey(second_w)");
-						System.out.println("first_w: " + first_w + " " + "seond_w " + ((Text)second_w).toString());
+						System.out.println("first_w: " + first_w + " " + "second_w " + ((Text)second_w).toString());
 						System.out.print("SUM_STRIPES: ");
 						System.out.print(value_of_second_w_in_SUM_STRIPES.get());
 						System.out.print(" values: ");
@@ -223,7 +228,7 @@ public class CORStripes extends Configured implements Tool {
 					else
 					{
 						System.out.println("!SUM_STRIPES.containsKey(second_w)");
-						System.out.println("first_w: " + first_w + " " + "seond_w " + ((Text)second_w).toString());
+						System.out.println("first_w: " + first_w + " " + "second_w " + ((Text)second_w).toString());
 						System.out.print("values: ");
 						System.out.println(value_of_second_w_in_values.get());
 						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
@@ -233,6 +238,8 @@ public class CORStripes extends Configured implements Tool {
 					SUM_STRIPES.put(second_w, value_of_second_w);
 				}
 			}
+			
+			System.out.println("iterator done*******");
 		    
 		    DoubleWritable first_w_freq = new DoubleWritable();
 		    DoubleWritable second_w_freq = new DoubleWritable();
