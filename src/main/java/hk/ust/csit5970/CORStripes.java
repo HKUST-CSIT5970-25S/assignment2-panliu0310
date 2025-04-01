@@ -103,7 +103,7 @@ public class CORStripes extends Configured implements Tool {
 				KEY.set(sorted_word_set_array[id1].toString());
 				for (int id2 = id1 + 1; id2 < sorted_word_set.size(); id2++)
 				{
-					STRIPE.put((Writable) sorted_word_set_array[id2], ONE);
+					STRIPE.put(new Text(sorted_word_set_array[id2].toString()), ONE);
 					context.write(KEY, STRIPE);
 					KEY.set(sorted_word_set_array[id2].toString());
 					STRIPE.clear();
@@ -129,9 +129,17 @@ public class CORStripes extends Configured implements Tool {
 
 			while (iter.hasNext()) {
 				for ( Writable second_w : iter.next().keySet() ) {
-					IntWritable value_of_key_second_w = (IntWritable) (SUM_STRIPES.get(key));
-					value_of_key_second_w.set(((IntWritable)SUM_STRIPES.get(key)).get() + 1);
-					SUM_STRIPES.put(second_w, value_of_key_second_w);
+					IntWritable value_of_key_second_w = new IntWritable();
+					if (SUM_STRIPES.containsKey(key))
+					{
+						value_of_key_second_w = (IntWritable) (SUM_STRIPES.get(key));
+						value_of_key_second_w.set(value_of_key_second_w.get() + 1);
+						SUM_STRIPES.put(second_w, value_of_key_second_w);
+					}
+					else
+					{
+						SUM_STRIPES.put(second_w, ONE);
+					}
 				}
 			}
 			context.write(key, SUM_STRIPES);
