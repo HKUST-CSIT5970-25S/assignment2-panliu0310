@@ -138,7 +138,7 @@ public class CORStripes extends Configured implements Tool {
 			while (iter.hasNext()) {
 				for ( Writable second_w : iter.next().keySet() ) {
 					IntWritable value_of_key_second_w = new IntWritable();
-					if (SUM_STRIPES.containsKey(key))
+					if (SUM_STRIPES.containsKey((Text)second_w))
 					{
 						System.out.println("SUM_STRIPES.containsKey(second_w)");
 						System.out.print("first_w: " + key.toString() + " ");
