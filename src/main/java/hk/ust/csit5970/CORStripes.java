@@ -109,7 +109,7 @@ public class CORStripes extends Configured implements Tool {
 				{
 					STRIPE.put(new Text(sorted_word_set_array[id2].toString()), ONE);
 					context.write(KEY, STRIPE);
-					KEY.set(sorted_word_set_array[id2].toString());
+					//KEY.set(sorted_word_set_array[id2].toString());
 					System.out.println("KEY: " + sorted_word_set_array[id1]);
 					System.out.println("KEY2: " + sorted_word_set_array[id2]);
 					STRIPE.clear();
@@ -161,7 +161,7 @@ public class CORStripes extends Configured implements Tool {
 					}
 				}
 			}
-			System.out.println("Combine2 iter done*******************");
+			System.out.println("Combine2 iter done*******");
 			
 			SUM_STRIPES.clear();
 		}
