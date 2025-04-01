@@ -207,14 +207,23 @@ public class CORStripes extends Configured implements Tool {
 					IntWritable value_of_second_w = new IntWritable();
 					IntWritable value_of_second_w_in_SUM_STRIPES = new IntWritable();
 					IntWritable value_of_second_w_in_values = new IntWritable();
+					System.out.println("for loop second_w*******");
 					if (SUM_STRIPES.containsKey(second_w))
 					{
+						System.out.println("SUM_STRIPES.containsKey(second_w)");
+						System.out.print("SUM_STRIPES: ");
+						System.out.print(value_of_second_w_in_SUM_STRIPES.get());
+						System.out.print(" values: ");
+						System.out.println(value_of_second_w_in_values.get());
 						value_of_second_w_in_SUM_STRIPES = (IntWritable) (SUM_STRIPES.get(second_w));
 						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
 						value_of_second_w.set(value_of_second_w_in_SUM_STRIPES.get() + value_of_second_w_in_values.get());
 					}
 					else
 					{
+						System.out.println("!SUM_STRIPES.containsKey(second_w)");
+						System.out.print("values: ");
+						System.out.println(value_of_second_w_in_values.get());
 						value_of_second_w_in_values = (IntWritable) map_second_w.get(second_w);
 						value_of_second_w.set(value_of_second_w_in_values.get());
 					}
