@@ -1,0 +1,5 @@
+====BigramFrePairs==== Mark: 2/2
+====BigramFreStripes==== Mark: 2/2
+====CorPairs==== Mark: 0/3 [line 122: words <['I', 'I', '0.015625']> != <['I', 'Pip', '0.03125']>]
+====CorStrip==== Mark: 0/3 [line 0: frequency 1.0 != 66.0]
+====Total Mark: 4/10
